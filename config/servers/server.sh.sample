@@ -1,0 +1,6 @@
+#!/bin/bash
+FTP_HOST="{ftp_server}"
+FTP_USER="{ftp_user}"
+FTP_PASSWORD="{ftp_password}"
+FTP_PORT=21
+FTP_BACKUP_DIRECTORY="{ftp_backup_directory}"
