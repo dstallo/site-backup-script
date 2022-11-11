@@ -2,20 +2,6 @@
 
 ###### PULLING BACKUP SCRIPT ######
 # Script for pulling Webfiles & Databases backups from FTP servers.
-# For each server configured on ./config/servers folder, the script will download the last web & database backups. 
-# Once done, if DELETE_BACKUPS_UPON_PULL is enabled, it will delete them from remote server.
-# This script must be executed on final backup destination server.
-# The server's configuration files, should contain the following env variables
-# FTP_HOST=""
-# FTP_USER=""
-# FTP_PASSWORD=""
-# FTP_PORT=
-
-###### DEPENDENCIES
-# ftp
-
-
-###################################
 
 # Backup script root directory.
 SCRIPT_ROOT_DIRECTORY=`dirname "$0"`
