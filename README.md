@@ -20,6 +20,7 @@ The database's configuration files should contain the following attributes
 - mysqldump
 - gzip
 - tar
+- find
 
 ## Pulling script (pull.sh)
 This script should be placed and executed on final backup destination server. For each server configured on ./config/servers folder, the script will download the last generated backups. 

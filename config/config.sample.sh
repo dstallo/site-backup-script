@@ -34,5 +34,9 @@ BACKUP_DIRECTORY=./files
 # Final backup directory located on backup's final host (on backup's server) [Used only on pull.sh]
 FINAL_BACKUP_DIRECTORY=../final
 
+# Log files for output and errors.
+LOG_FILE=$SCRIPT_ROOT_DIRECTORY/logs/output.log
+ERROR_FILE=$SCRIPT_ROOT_DIRECTORY/logs/output.err
+
 # Minimum filesize error in bytes 
 MINIMUM_FILESIZE_ERROR=4096

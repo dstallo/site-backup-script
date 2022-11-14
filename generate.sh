@@ -1,7 +1,6 @@
 #!/bin/bash
 
 #### GENERATE BACKUP SCRIPT ####
-
 # Script for generating backup files on webhosts. This script generate backups for web files and databases.
 
 # Backup script root directory.
@@ -10,19 +9,39 @@ SCRIPT_ROOT_DIRECTORY=`dirname "$0"`
 # Include config file
 source $SCRIPT_ROOT_DIRECTORY/config/config.sh
 
-current=`date +%Y%m%d_%H%M`
+# Log functions
+function echolog() {
+    echo "$(date -u): $1" >> $LOG_FILE
+}
 
+function echoerror() {
+    echo "$(date -u): $1" >> $ERROR_FILE
+}
+
+# Running over each database .cnf file
 for database_cnf_file in $DATABASES_CNF_DIRECTORY/*.cnf ; do 
-    [[ -f "$database_cnf_file" ]] || continue # exclude garbage in directory
+    # exclude possible garbage in directory
+    [[ -f "$database_cnf_file" ]] || continue 
+    
     filename=$(basename -- "$database_cnf_file")
     database="${filename%.*}"    
-    database_backup_filename=$current\_$BACKUP_FILES_PREFIX\_db\_$database\_$RANDOM.sql
     
-    mysqldump --defaults-file=$database_cnf_file $database > $TEMP_DIRECTORY/$database_backup_filename && gzip -c $TEMP_DIRECTORY/$database_backup_filename && mv $TEMP_DIRECTORY/$database_backup_filename.gz $BACKUP_DIRECTORY && echo "$current: DATABASE $database SUCCESSFULLY BACKED UP into $database_backup_filename.gz"
+    # Getting filename for database
+    database_backup_filename=$(date +%Y%m%d%H%M%S)\_$BACKUP_FILES_PREFIX\_db\_$database\_$RANDOM.sql 
+    
+    echolog "Backing up database $database ..."
+
+    # Creating mysqldump, gzip and then mv file to backup's directory.
+    mysqldump --defaults-file=$database_cnf_file --no-tablespaces $database > $TEMP_DIRECTORY/$database_backup_filename 2>> $ERROR_FILE && gzip $TEMP_DIRECTORY/$database_backup_filename 2>> $ERROR_FILE && mv $TEMP_DIRECTORY/$database_backup_filename.gz $BACKUP_DIRECTORY && echolog "Database $database successfully backed up into $database_backup_filename.gz"
 done
 
-web_backup_filename=$current\_$BACKUP_FILES_PREFIX\_web\_$RANDOM
+# Getting webfiles backup file name.
+web_backup_filename=$(date +%Y%m%d%H%M%S)\_$BACKUP_FILES_PREFIX\_web\_$RANDOM
 
-tar -zvcf "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" -C $WEB_ROOT_DIRECTORY . && mv "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" $BACKUP_DIRECTORY && echo "$current: WEBSITE SUCCESSFULLY BACKED UP into $web_backup_filename.tar.gz"
+echolog "Backing up website folder $WEB_ROOT_DIRECTORY ..."
 
-$(find $BACKUP_DIRECTORY -type f -mtime +$DELETE_BACKUPS_OLDER_THAN_DAYS -name '*.gz' -execdir rm -- '{}' \;)
+# Generating website backup file.
+tar -zcf "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" -C $WEB_ROOT_DIRECTORY . >> $LOG_FILE 2>> $ERROR_FILE && mv "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" $BACKUP_DIRECTORY && echolog "Website successfully backed up into $web_backup_filename.tar.gz"
+
+# Deleting old backups on backup directory
+#$(find $BACKUP_DIRECTORY -type f -mtime +$DELETE_BACKUPS_OLDER_THAN_DAYS -name '*.gz' -execdir rm -- '{}' \;)
