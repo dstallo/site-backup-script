@@ -35,3 +35,6 @@ The server's configuration files, should contain the following env variables
 
 ### Dependencies for pull.sh
 - wget
+- curl
+- md5sum
+- awk
