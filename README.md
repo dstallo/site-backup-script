@@ -38,3 +38,12 @@ The server's configuration files, should contain the following env variables
 - curl
 - md5sum
 - awk
+
+## Rotation script (rotate.sh)
+This script receives a parameter with 2 possible values: daily and monthly.
+- When daily, it will delete files older than 7 days. It should be executed on a daily basis.
+- When monthly, it will copy files from yesterday to monthly folder and delete files older than 1 year of this folder. It should be executed on a monthly basis.
+It needs $FINAL_BACKUP_DIRECTORY variable for the directory, found on config.sh.
+
+### Dependencies for rotate.sh
+None.
