@@ -21,6 +21,10 @@ function echoerror() {
 echolog "Backup generation script started"
 start_time=$SECONDS
 
+# Deleting old backups on backup directory
+echolog "Deleting backups older than $DELETE_BACKUPS_OLDER_THAN_DAYS days ago"
+$(find $BACKUP_DIRECTORY -type f -mtime +$DELETE_BACKUPS_OLDER_THAN_DAYS -name '*.gz' -execdir rm -- '{}' \;) && echolog "Old backups correctly deleted" || echoerror "Error while deleting old backups"
+
 # Running over each database .cnf file
 for database_cnf_file in $DATABASES_CNF_DIRECTORY/*.cnf ; do 
     # exclude possible garbage in directory
@@ -45,9 +49,5 @@ echolog "Backing up website folder $WEB_ROOT_DIRECTORY ..."
 
 # Generating website backup file.
 tar -zcf "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" -C $WEB_ROOT_DIRECTORY . >> $LOG_FILE 2>> $ERROR_FILE && mv "$TEMP_DIRECTORY/$web_backup_filename.tar.gz" $BACKUP_DIRECTORY && echolog "Website successfully backed up into $web_backup_filename.tar.gz" || echoerror "Error while backing up website files"
-
-# Deleting old backups on backup directory
-echolog "Deleting backups older than $DELETE_BACKUPS_OLDER_THAN_DAYS days ago"
-$(find $BACKUP_DIRECTORY -type f -mtime +$DELETE_BACKUPS_OLDER_THAN_DAYS -name '*.gz' -execdir rm -- '{}' \;) && echolog "Old backups correctly deleted" || echoerror "Error while deleting old backups"
 
 echolog "Backup generation script finished. It took $(( SECONDS - start_time )) seconds."
